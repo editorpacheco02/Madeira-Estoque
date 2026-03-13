@@ -1,0 +1,5 @@
+{
+  "name": "Controle de Estoque Pro",
+  "description": "Sistema completo de controle de estoque com autenticação via Magic Link (Supabase), dashboard, alertas e histórico de movimentações.",
+  "requestFramePermissions": []
+}
