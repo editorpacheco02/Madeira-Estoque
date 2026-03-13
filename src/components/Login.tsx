@@ -166,8 +166,32 @@ export default function Login() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    console.log('Iniciando login com Google');
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+
+      if (error) throw error;
+      // O Supabase redirecionará o usuário automaticamente
+    } catch (error: any) {
+      console.error('Erro no login com Google:', error);
+      setMessage({ type: 'error', text: 'Erro ao conectar com o Google: ' + (error.message || 'Tente novamente.') });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 p-4">
+      {/* ... (códigos de alerta e configuração permanecem os mesmos) ... */}
       {!isConfigured && (
         <div className="w-full max-w-md mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 text-amber-800 shadow-sm">
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
@@ -255,9 +279,6 @@ export default function Login() {
                   Configurações {'>'} API no seu painel Supabase
                 </a>
               </p>
-              <p className="text-[10px] text-zinc-400 text-center">
-                Use esta configuração caso as chaves automáticas não funcionem.
-              </p>
             </div>
           </div>
         </div>
@@ -280,11 +301,30 @@ export default function Login() {
           </p>
         </div>
 
+        {/* Google Login Button */}
+        <button
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          className="w-full mb-6 flex items-center justify-center gap-3 px-4 py-2.5 bg-white border border-zinc-300 rounded-lg text-sm font-medium text-zinc-700 hover:bg-zinc-50 transition-all shadow-sm disabled:opacity-50"
+        >
+          <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+          Entrar com Google
+        </button>
+
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-zinc-200" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-zinc-400">Ou continuar com</span>
+          </div>
+        </div>
+
         <div className="flex gap-2 mb-6 p-1 bg-zinc-100 rounded-lg">
           <button
             onClick={() => { setMode('password'); setMessage(null); }}
             className={clsx(
-              "flex-1 py-2 text-sm font-medium rounded-md transition-all",
+              "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
               mode === 'password' ? "bg-white text-emerald-600 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
             )}
           >
@@ -293,7 +333,7 @@ export default function Login() {
           <button
             onClick={() => { setMode('magic-link'); setMessage(null); }}
             className={clsx(
-              "flex-1 py-2 text-sm font-medium rounded-md transition-all",
+              "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
               mode === 'magic-link' ? "bg-white text-emerald-600 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
             )}
           >
@@ -302,7 +342,7 @@ export default function Login() {
           <button
             onClick={() => { setMode('signup'); setMessage(null); }}
             className={clsx(
-              "flex-1 py-2 text-sm font-medium rounded-md transition-all",
+              "flex-1 py-1.5 text-xs font-medium rounded-md transition-all",
               mode === 'signup' ? "bg-white text-emerald-600 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
             )}
           >
@@ -322,7 +362,7 @@ export default function Login() {
                 type="email"
                 required
                 placeholder="seu@email.com"
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                className="w-full pl-10 pr-4 py-2 bg-white border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -338,7 +378,7 @@ export default function Login() {
                   type="password"
                   required
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full pl-10 pr-4 py-2 bg-white border border-zinc-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -349,23 +389,23 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : mode === 'magic-link' ? (
               <>
-                <Mail className="w-5 h-5" />
+                <Mail className="w-4 h-4" />
                 Enviar link
               </>
             ) : mode === 'signup' ? (
               <>
-                <UserPlus className="w-5 h-5" />
+                <UserPlus className="w-4 h-4" />
                 Criar conta
               </>
             ) : (
               <>
-                <KeyRound className="w-5 h-5" />
+                <KeyRound className="w-4 h-4" />
                 Entrar
               </>
             )}
@@ -380,7 +420,7 @@ export default function Login() {
             )}
           >
             <AlertCircle className="w-5 h-5 shrink-0" />
-            {message.text}
+            <p className="flex-1">{message.text}</p>
           </div>
         )}
       </div>
